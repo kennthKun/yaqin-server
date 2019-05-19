@@ -41,6 +41,8 @@ app.get('/guides/api', function(req, res) {
 	});
 })
 
+
+
 app.get('/guides/delete', function(req, res) {
 	//删
 	console.log(req.query.id)
@@ -59,9 +61,38 @@ app.get('/guides/delete', function(req, res) {
 	
 })
 
-//加导游
-app.post('/addTourGuide', function (req, res) {
-	//注册
+////加导游
+//app.post('/addTourGuide', function (req, res) {
+//	var data = ''
+//	var dataObject = {}
+//	var  sql = ''
+//	req.on('data', function (chunk) {
+//		data += chunk;
+//	});
+//	req.on('end', function () {
+//		data = decodeURI(data);
+//	  dataObject = querystring.parse(data);
+//  var  addSqlParams =dataObject.data.split(',');
+//  var  addSql = 'INSERT INTO tour_guides(name,phone,introduce,scenic_spot,category,price) VALUES(?,?,?,?,?,?)';
+//		console.log(addSqlParams)
+//		connection.query(addSql,addSqlParams,function (err, result) {
+//			if(err){
+//	    			console.log('[INSERT ERROR] - ',err.message);
+//	        	return;
+//	     }   
+//	     var data = {
+//				"code": 0,
+//				"data": 'ok！'
+//			}
+//	     console.log(result);
+//	     res.send(data);
+//		})
+//   
+//	 });
+//})
+
+//加租车
+app.post('/guides/add', function (req, res) {
 	var data = ''
 	var dataObject = {}
 	var  sql = ''
@@ -71,26 +102,66 @@ app.post('/addTourGuide', function (req, res) {
 	req.on('end', function () {
 		data = decodeURI(data);
 	  dataObject = querystring.parse(data);
-    var  addSqlParams =dataObject.data.split(',');
-    var  addSql = 'INSERT INTO tour_guides(name,phone,introduce,scenic_spot,category,price) VALUES(?,?,?,?,?,?)';
-		console.log(addSqlParams)
-		connection.query(addSql,addSqlParams,function (err, result) {
-			if(err){
-	    			console.log('[INSERT ERROR] - ',err.message);
-	        	return;
-	     }   
-	     var data = {
-				"code": 0,
-				"data": 'ok！'
-			}
-	     console.log(result);
-	     res.send(data);
-		})
-     
+//	  console.log(dataObject)
+    var addSqlParams =dataObject.data;
+    var tex = ''
+    var insert1 = "";
+    var insert0 = "";
+    var insert2 = [];
+    console.log(JSON.parse(addSqlParams))
+    if(JSON.parse(addSqlParams).id){
+    		console.log("bianji")
+    		var tex = ''
+	    for (let x in  JSON.parse(addSqlParams)){
+	    		if(x == "id" || x == "longimageList"){
+	    			
+	    		}else{
+	    			tex +=", `"+x+"` = '"+JSON.parse(addSqlParams)[x]+"'"
+	    		}
+	    }
+	    tex = tex.substr(1)
+	    var updataSql = "UPDATE tour_guides SET "+ tex +" WHERE `id` = "+JSON.parse(addSqlParams).id
+			console.log(updataSql)
+			connection.query(updataSql,function (err, result) {
+				if(err){
+		    			console.log('[INSERT ERROR] - ',err.message);
+		        	return;
+		     }   
+		     var data = {
+					"code": 0,
+					"data": result
+				}
+		     res.send(data);
+			})
+    }else{
+    		for(let x in JSON.parse(addSqlParams)){
+    			insert1 += ","+x
+    			insert0 += ",?"
+    			insert2.push(JSON.parse(addSqlParams)[x])
+    		}
+    		insert1 = insert1.substr(1)
+    		insert0 = insert0.substr(1)
+    		let addSql = "INSERT INTO tour_guides("+insert1+") VALUES("+insert0+")"
+    		console.log(addSql)
+    		connection.query(addSql,insert2,function (err, result) {
+				if(err){
+		    			console.log('[INSERT ERROR] - ',err.message);
+		        	return;
+		     }   
+		     var data = {
+					"code": 0,
+					"data": 'ok！'
+				}
+		     console.log(result);
+		     res.send(data);
+			})
+    }
 	 });
 })
 
-//----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//-------------------------------------------------------------------------------------------------------
 
 //查询景区
 app.get('/scenic_spot_second/api', function(req, res) {
@@ -109,6 +180,7 @@ app.get('/scenic_spot_second/api', function(req, res) {
 		res.send(data);
 	});
 })
+
 
 //加景区
 app.post('/scenic_spot_second/add', function (req, res) {
@@ -201,6 +273,361 @@ app.post('/scenic_spot_second/edit', function (req, res) {
      
 	 });
 })
+//--------------------------------------------------------------------------------------------------------
+//查询酒店
+app.get('/hotel/api', function(req, res) {
+	var sql = 'SELECT * FROM hotel';
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
+
+//加酒店
+app.post('/hotel/add', function (req, res) {
+	var data = ''
+	var dataObject = {}
+	var  sql = ''
+	req.on('data', function (chunk) {
+		data += chunk;
+	});
+	req.on('end', function () {
+		data = decodeURI(data);
+	  dataObject = querystring.parse(data);
+//	  console.log(dataObject)
+    var addSqlParams =dataObject.data;
+    var tex = ''
+    var insert1 = "";
+    var insert0 = "";
+    var insert2 = [];
+    console.log(JSON.parse(addSqlParams))
+    if(JSON.parse(addSqlParams).id){
+    		console.log("bianji")
+    		var tex = ''
+	    for (let x in  JSON.parse(addSqlParams)){
+	    		if(x == "id" || x == "longimageList"){
+	    			
+	    		}else{
+	    			tex +=", `"+x+"` = '"+JSON.parse(addSqlParams)[x]+"'"
+	    		}
+	    }
+	    tex = tex.substr(1)
+	    var updataSql = "UPDATE hotel SET "+ tex +" WHERE `id` = "+JSON.parse(addSqlParams).id
+			console.log(updataSql)
+			connection.query(updataSql,function (err, result) {
+				if(err){
+		    			console.log('[INSERT ERROR] - ',err.message);
+		        	return;
+		     }   
+		     var data = {
+					"code": 0,
+					"data": result
+				}
+		     res.send(data);
+			})
+    }else{
+    		for(let x in JSON.parse(addSqlParams)){
+    			insert1 += ","+x
+    			insert0 += ",?"
+    			insert2.push(JSON.parse(addSqlParams)[x])
+    		}
+    		insert1 = insert1.substr(1)
+    		insert0 = insert0.substr(1)
+    		let addSql = "INSERT INTO hotel("+insert1+") VALUES("+insert0+")"
+    		console.log(addSql)
+    		connection.query(addSql,insert2,function (err, result) {
+				if(err){
+		    			console.log('[INSERT ERROR] - ',err.message);
+		        	return;
+		     }   
+		     var data = {
+					"code": 0,
+					"data": 'ok！'
+				}
+		     console.log(result);
+		     res.send(data);
+			})
+    }
+	 });
+})
+
+//删除酒店
+app.get('/hotel/delete', function(req, res) {
+	//删
+	console.log(req.query.id)
+	var delSql = 'DELETE FROM hotel where id='+req.query.id;
+	connection.query(delSql, function(err, result) {
+		if(err) {
+			console.log('[INSERT ERROR] - ', err.message);
+			return;
+		}
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	})
+	
+})
+
+
+
+
+//-------------------------------------------------------------------------------------------------------
+//租车
+
+//查询租车
+app.get('/drivers/api', function(req, res) {
+	var sql = 'SELECT * FROM drivers';
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
+
+//删除租车
+app.get('/drivers/delete', function(req, res) {
+	//删
+	console.log(req.query.id)
+	var delSql = 'DELETE FROM drivers where id='+req.query.id;
+	connection.query(delSql, function(err, result) {
+		if(err) {
+			console.log('[INSERT ERROR] - ', err.message);
+			return;
+		}
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	})
+	
+})
+
+
+
+
+//加租车
+app.post('/drivers/add', function (req, res) {
+	var data = ''
+	var dataObject = {}
+	var  sql = ''
+	req.on('data', function (chunk) {
+		data += chunk;
+	});
+	req.on('end', function () {
+		data = decodeURI(data);
+	  dataObject = querystring.parse(data);
+//	  console.log(dataObject)
+    var addSqlParams =dataObject.data;
+    var tex = ''
+    var insert1 = "";
+    var insert0 = "";
+    var insert2 = [];
+    console.log(JSON.parse(addSqlParams))
+    if(JSON.parse(addSqlParams).id){
+    		console.log("bianji")
+    		var tex = ''
+	    for (let x in  JSON.parse(addSqlParams)){
+	    		if(x == "id" || x == "longimageList"){
+	    			
+	    		}else{
+	    			tex +=", `"+x+"` = '"+JSON.parse(addSqlParams)[x]+"'"
+	    		}
+	    }
+	    tex = tex.substr(1)
+	    var updataSql = "UPDATE drivers SET "+ tex +" WHERE `id` = "+JSON.parse(addSqlParams).id
+			console.log(updataSql)
+			connection.query(updataSql,function (err, result) {
+				if(err){
+		    			console.log('[INSERT ERROR] - ',err.message);
+		        	return;
+		     }   
+		     var data = {
+					"code": 0,
+					"data": result
+				}
+		     res.send(data);
+			})
+    }else{
+    		for(let x in JSON.parse(addSqlParams)){
+    			insert1 += ","+x
+    			insert0 += ",?"
+    			insert2.push(JSON.parse(addSqlParams)[x])
+    		}
+    		insert1 = insert1.substr(1)
+    		insert0 = insert0.substr(1)
+    		let addSql = "INSERT INTO drivers("+insert1+") VALUES("+insert0+")"
+    		console.log(addSql)
+    		connection.query(addSql,insert2,function (err, result) {
+				if(err){
+		    			console.log('[INSERT ERROR] - ',err.message);
+		        	return;
+		     }   
+		     var data = {
+					"code": 0,
+					"data": 'ok！'
+				}
+		     console.log(result);
+		     res.send(data);
+			})
+    }
+	 });
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+//查询特产	
+	
+app.get('/specialty/api', function(req, res) {
+	var sql = 'SELECT * FROM specialty where type ='+req.query.type;
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
+//加特产=1 美食=2 攻略=2
+app.post('/specialty/add', function (req, res) {
+	var data = ''
+	var dataObject = {}
+	var  sql = ''
+	req.on('data', function (chunk) {
+		data += chunk;
+	});
+	req.on('end', function () {
+		data = decodeURI(data);
+	  dataObject = querystring.parse(data);
+//	  console.log(dataObject)
+    var addSqlParams =dataObject.data;
+    var tex = ''
+    var insert1 = "";
+    var insert0 = "";
+    var insert2 = [];
+    console.log(JSON.parse(addSqlParams))
+    if(JSON.parse(addSqlParams).id){
+    		console.log("bianji")
+    		var tex = ''
+	    for (let x in  JSON.parse(addSqlParams)){
+	    		if(x == "id" || x == "longimageList"){
+	    			
+	    		}else{
+	    			tex +=", `"+x+"` = '"+JSON.parse(addSqlParams)[x]+"'"
+	    		}
+	    }
+	    tex = tex.substr(1)
+	    var updataSql = "UPDATE specialty SET "+ tex +" WHERE `id` = "+JSON.parse(addSqlParams).id
+			console.log(updataSql)
+			connection.query(updataSql,function (err, result) {
+				if(err){
+		    			console.log('[INSERT ERROR] - ',err.message);
+		        	return;
+		     }   
+		     var data = {
+					"code": 0,
+					"data": result
+				}
+		     res.send(data);
+			})
+    }else{
+    		for(let x in JSON.parse(addSqlParams)){
+    			insert1 += ","+x
+    			insert0 += ",?"
+    			insert2.push(JSON.parse(addSqlParams)[x])
+    		}
+    		insert1 = insert1.substr(1)
+    		insert0 = insert0.substr(1)
+    		let addSql = "INSERT INTO specialty("+insert1+") VALUES("+insert0+")"
+    		console.log(addSql)
+    		connection.query(addSql,insert2,function (err, result) {
+				if(err){
+		    			console.log('[INSERT ERROR] - ',err.message);
+		        	return;
+		     }   
+		     var data = {
+					"code": 0,
+					"data": 'ok！'
+				}
+		     console.log(result);
+		     res.send(data);
+			})
+    }
+	 });
+})
+//特产详情
+app.get('/specialty/details', function(req, res) {
+	
+	var sql = 'SELECT * FROM specialty where id =' + req.query.id;
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
+//删除详情
+app.get('/specialty/delete', function(req, res) {
+	//删
+	console.log(req.query.id)
+	var delSql = 'DELETE FROM specialty where id='+req.query.id;
+	connection.query(delSql, function(err, result) {
+		if(err) {
+			console.log('[INSERT ERROR] - ', err.message);
+			return;
+		}
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	})
+	
+})
+
+
 
 	//登录
 app.post('/user/login', function(req, res) {

@@ -24,9 +24,82 @@ app.all("*",function(req,res,next){
         next();
 })
 
-app.get('/api', function (req, res) {
+app.get('/scenic/api', function (req, res) {
 	//查
-	var  sql = 'SELECT * FROM Place';
+	console.log(req.query.type)
+	if(req.query.type != 0){
+		var  sql = 'SELECT * FROM scenic_spot_second where type='+ req.query.type;
+	}else{
+		var  sql = 'SELECT * FROM scenic_spot_second'
+	}
+//	var  sql = 'SELECT * FROM scenic_spot_second where type='+ req.query.type;
+	connection.query(sql,function (err, result) {
+	    if(err){
+	        console.log('[SELECT ERROR] - ',err.message);
+	        return;
+	    }
+	    result.code = 0
+	    console.log(result);
+	    var data = {
+	    		"code":0,
+	    		"data":result
+	    }
+	    res.send(data);
+	});   
+})
+//点赞
+app.get('/scenic/price', function (req, res) {
+	
+//	console.log(req.query.type)
+	var	sql = ''
+	if(req.query.type ==1){
+		sql = "UPDATE scenic_spot_second SET praise = praise+1 WHERE id = "+req.query.id
+	}
+	console.log(sql)
+	connection.query(sql,function (err, result) {
+	    if(err){
+	        console.log('[SELECT ERROR] - ',err.message);
+	        return;
+	    }
+	    result.code = 0
+	    console.log(result);
+	    var data = {
+	    		"code":0,
+	    		"data":result
+	    }
+	    res.send(data);
+	});   
+})
+
+
+//
+
+
+
+//评论查询
+//app.get('/user/collection', function (req, res) {
+//	
+////	console.log(req.query.type)
+//	var	sql = "UPDATE user SET collection = collection=,"+req.query.gid+" WHERE id ="+req.query.id
+////	console.log(sql)
+//	connection.query(sql,function (err, result) {
+//	    if(err){
+//	        console.log('[SELECT ERROR] - ',err.message);
+//	        return;
+//	    }
+//	    result.code = 0
+//	    console.log(result);
+//	    var data = {
+//	    		"code":0,
+//	    		"data":result
+//	    }
+//	    res.send(data);
+//	});   
+//})
+
+app.get('/scenic/detail', function (req, res) {
+	//查
+	var  sql = 'SELECT * FROM scenic_spot_second where id='+ req.query.id;
 	connection.query(sql,function (err, result) {
 	    if(err){
 	        console.log('[SELECT ERROR] - ',err.message);
@@ -54,7 +127,7 @@ app.post('/login', function (req, res) {
 	   data = decodeURI(data);
 	   dataObject = querystring.parse(data);
      console.log(dataObject.username);
-     var  sql = 'SELECT password FROM user WHERE username="'+dataObject.username+'";';
+     var  sql = 'SELECT * FROM user WHERE username="'+dataObject.username+'";';
      connection.query(sql,function (err, result) {
 			if(err) {
 				console.log('[SELECT ERROR] - ', err.message);
@@ -64,7 +137,7 @@ app.post('/login', function (req, res) {
 			if(result[0].password && result[0].password == dataObject.password){
 				var data = {
 					"code": 0,
-					"data": '登录成功！'
+					"data": result[0]
 				}
 			}else{
 				var data = {
