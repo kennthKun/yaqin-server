@@ -24,6 +24,186 @@ app.all("*",function(req,res,next){
         next();
 })
 
+app.post('/comments/add', function (req, res) {
+	var data = ''
+	var dataObject = {}
+	var  sql = ''
+	req.on('data', function (chunk) {
+		data += chunk;
+	});
+	req.on('end', function () {
+		data = decodeURI(data);
+	  dataObject = querystring.parse(data);
+    var addSqlParams =dataObject.data;
+    var insert1 = "";
+    var insert0 = "";
+    var insert2 = [];
+    console.log(JSON.parse(addSqlParams))
+  		for(let x in JSON.parse(addSqlParams)){
+  			insert1 += ","+x
+  			insert0 += ",?"
+  			insert2.push(JSON.parse(addSqlParams)[x])
+  		}
+  		insert1 = insert1.substr(1)
+  		insert0 = insert0.substr(1)
+  		let addSql = "INSERT INTO comments("+insert1+") VALUES("+insert0+")"
+  		console.log(addSql)
+  		connection.query(addSql,insert2,function (err, result) {
+			if(err){
+	    			console.log('[INSERT ERROR] - ',err.message);
+	        	return;
+	     }   
+	     var data = {
+				"code": 0,
+				"data": 'ok！'
+			}
+	     console.log(result);
+	     res.send(data);
+		})
+	 });
+})
+app.get('/drivers/api2', function(req, res) {
+	var sql = 'SELECT * FROM drivers where areaid='+req.query.id;
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
+app.get('/drivers/api', function(req, res) {
+	var sql = 'SELECT * FROM drivers where id='+ req.query.id;
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
+
+
+app.get('/hotels/api', function(req, res) {
+	var sql = 'SELECT * FROM hotel where id='+ req.query.id;
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
+
+app.get('/hotels/api2', function(req, res) {
+	var sql = 'SELECT * FROM hotel where areaid='+req.query.id;
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
+//查导游
+app.get('/guides/api2', function(req, res) {
+	var sql = 'SELECT * FROM tour_guides where areaid='+req.query.id;
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
+app.get('/guides/api', function(req, res) {
+	var sql = 'SELECT * FROM tour_guides where id='+ req.query.id;
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
+
+//设置
+app.post('/mycenter/set', function (req, res) {
+	var data = ''
+	var dataObject = {}
+	var  sql = ''
+	req.on('data', function (chunk) {
+		data += chunk;
+	});
+	req.on('end', function () {
+		data = decodeURI(data);
+	  dataObject = querystring.parse(data);
+//	  console.log(dataObject)
+    var addSqlParams =dataObject.data;
+    var tex = ''
+    console.log(JSON.parse(addSqlParams))
+  		var tex = ''
+    for (let x in  JSON.parse(addSqlParams)){
+    		if(x == "id" || x == "longimageList"){
+    			
+    		}else{
+    			tex +=", `"+x+"` = '"+JSON.parse(addSqlParams)[x]+"'"
+    		}
+    }
+    tex = tex.substr(1)
+    var updataSql = "UPDATE user SET "+ tex +" WHERE `id` = "+JSON.parse(addSqlParams).id
+		console.log(updataSql)
+		connection.query(updataSql,function (err, result) {
+			if(err){
+	    			console.log('[INSERT ERROR] - ',err.message);
+	        	return;
+	     }   
+	     var data = {
+				"code": 0,
+				"data": result
+			}
+	     res.send(data);
+		})
+  });
+})
+
+
 app.get('/scenic/api', function (req, res) {
 	//查
 	console.log(req.query.type)
@@ -47,9 +227,9 @@ app.get('/scenic/api', function (req, res) {
 	    res.send(data);
 	});   
 })
+
 //点赞
 app.get('/scenic/price', function (req, res) {
-	
 //	console.log(req.query.type)
 	var	sql = ''
 	if(req.query.type ==1){
@@ -71,31 +251,52 @@ app.get('/scenic/price', function (req, res) {
 	});   
 })
 
+//收藏
+app.get('/scenic/Collection', function (req, res) {
+//	console.log(req.query.type)
+	console.log(req.query)
+	var	sql = ''
+	sql = "UPDATE user SET scenicarr_id = '"+req.query.sid+"' WHERE id = "+req.query.id
+	console.log(sql)
+	connection.query(sql,function (err, result) {
+	    if(err){
+	        console.log('[SELECT ERROR] - ',err.message);
+	        return;
+	    }
+	    result.code = 0
+	    console.log(result);
+	    var data = {
+	    		"code":0,
+	    		"data":result
+	    }
+	    res.send(data);
+	});   
+})
 
-//
+
+//列表
+app.get('/Collection/list', function (req, res) {
+//	console.log(req.query.type)
+	console.log(req.query)
+	var	sql = ''
+	sql = 'SELECT * FROM `scenic_spot_second` WHERE id in ('+req.query.sid+')'; 
+	console.log(sql)
+	connection.query(sql,function (err, result) {
+	    if(err){
+	        console.log('[SELECT ERROR] - ',err.message);
+	        return;
+	    }
+	    result.code = 0
+	    console.log(result);
+	    var data = {
+	    		"code":0,
+	    		"data":result
+	    }
+	    res.send(data);
+	});   
+})
 
 
-
-//评论查询
-//app.get('/user/collection', function (req, res) {
-//	
-////	console.log(req.query.type)
-//	var	sql = "UPDATE user SET collection = collection=,"+req.query.gid+" WHERE id ="+req.query.id
-////	console.log(sql)
-//	connection.query(sql,function (err, result) {
-//	    if(err){
-//	        console.log('[SELECT ERROR] - ',err.message);
-//	        return;
-//	    }
-//	    result.code = 0
-//	    console.log(result);
-//	    var data = {
-//	    		"code":0,
-//	    		"data":result
-//	    }
-//	    res.send(data);
-//	});   
-//})
 
 app.get('/scenic/detail', function (req, res) {
 	//查
@@ -114,6 +315,48 @@ app.get('/scenic/detail', function (req, res) {
 	    res.send(data);
 	});   
 })
+
+
+
+
+
+app.get('/user/info', function (req, res) {
+	//查
+	var  sql = 'SELECT * FROM user where id='+ req.query.id;
+	connection.query(sql,function (err, result) {
+	    if(err){
+	        console.log('[SELECT ERROR] - ',err.message);
+	        return;
+	    }
+	    result.code = 0
+	    console.log(result);
+	    var data = {
+	    		"code":0,
+	    		"data":result
+	    }
+	    res.send(data);
+	});   
+})
+
+
+app.get('/comments/api', function (req, res) {
+	//查
+	var  sql = 'SELECT * FROM comments where sid='+ req.query.sid;
+	connection.query(sql,function (err, result) {
+	    if(err){
+	        console.log('[SELECT ERROR] - ',err.message);
+	        return;
+	    }
+	    result.code = 0
+	    console.log(result);
+	    var data = {
+	    		"code":0,
+	    		"data":result
+	    }
+	    res.send(data);
+	});   
+})
+
 
 app.post('/login', function (req, res) {
 	//查
@@ -150,6 +393,9 @@ app.post('/login', function (req, res) {
 	 });
 })
 
+
+
+
 app.post('/registered', function (req, res) {
 	//注册
 	var data = ''
@@ -162,8 +408,9 @@ app.post('/registered', function (req, res) {
 		data = decodeURI(data);
 	  dataObject = querystring.parse(data);
     var  addSqlParams =dataObject.data.split(',');
-    var  addSql = 'INSERT INTO user(username,password) VALUES(?,?)';
+    var  addSql = 'INSERT INTO user(username,password,photo) VALUES(?,?,?)';
 		console.log(addSqlParams)
+		addSqlParams.push('pic/avatar.gif')
 		connection.query(addSql,addSqlParams,function (err, result) {
 			if(err){
 	    			console.log('[INSERT ERROR] - ',err.message);

@@ -23,6 +23,24 @@ app.all("*", function(req, res, next) {
 	else
 		next();
 })
+
+//查用户
+app.get('/user/api', function(req, res) {
+	var sql = 'SELECT * FROM user';
+	connection.query(sql, function(err, result) {
+		if(err) {
+			console.log('[SELECT ERROR] - ', err.message);
+			return;
+		}
+		result.code = 0
+		console.log(result);
+		var data = {
+			"code": 0,
+			"data": result
+		}
+		res.send(data);
+	});
+})
 //查导游
 app.get('/guides/api', function(req, res) {
 	var sql = 'SELECT * FROM tour_guides';
@@ -60,36 +78,6 @@ app.get('/guides/delete', function(req, res) {
 	})
 	
 })
-
-////加导游
-//app.post('/addTourGuide', function (req, res) {
-//	var data = ''
-//	var dataObject = {}
-//	var  sql = ''
-//	req.on('data', function (chunk) {
-//		data += chunk;
-//	});
-//	req.on('end', function () {
-//		data = decodeURI(data);
-//	  dataObject = querystring.parse(data);
-//  var  addSqlParams =dataObject.data.split(',');
-//  var  addSql = 'INSERT INTO tour_guides(name,phone,introduce,scenic_spot,category,price) VALUES(?,?,?,?,?,?)';
-//		console.log(addSqlParams)
-//		connection.query(addSql,addSqlParams,function (err, result) {
-//			if(err){
-//	    			console.log('[INSERT ERROR] - ',err.message);
-//	        	return;
-//	     }   
-//	     var data = {
-//				"code": 0,
-//				"data": 'ok！'
-//			}
-//	     console.log(result);
-//	     res.send(data);
-//		})
-//   
-//	 });
-//})
 
 //加租车
 app.post('/guides/add', function (req, res) {
@@ -344,6 +332,7 @@ app.post('/hotel/add', function (req, res) {
     		insert0 = insert0.substr(1)
     		let addSql = "INSERT INTO hotel("+insert1+") VALUES("+insert0+")"
     		console.log(addSql)
+    		console.log(insert2)
     		connection.query(addSql,insert2,function (err, result) {
 				if(err){
 		    			console.log('[INSERT ERROR] - ',err.message);
